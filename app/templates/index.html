@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+        {% for activity in activities %}
+            <div><p>{{ activity.user.username }} did <b>{{ activity.activitytype.name }}</b> on {{ activity.timestamp }} </p></div>
+        {% endfor %}
+{% endblock %}
