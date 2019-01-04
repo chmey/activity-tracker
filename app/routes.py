@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app
-from app.forms import LoginForm
-from app.models import User, Activity
+from app import app, db
+from app.forms import LoginForm, AddActivityForm
+from app.models import User, Activity, ActivityType
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
@@ -11,6 +11,21 @@ from werkzeug.urls import url_parse
 @login_required
 def index():
     return render_template('index.html', activities=current_user.activities)
+
+@app.route('/add', methods=['GET', 'POST'])
+def addactivity():
+    form = AddActivityForm()
+    form.activitytype.choices = [(type.id, type.name) for type in ActivityType.query.all()]
+    if form.validate_on_submit():
+        a = Activity(activitytype_id = form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
+        db.session.add(a)
+        db.session.commit()
+        flash('Activity added!')
+        return redirect(url_for('index'))
+    else:
+        flash('Failed to add activity')
+    return render_template('add.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

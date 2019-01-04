@@ -128,3 +128,6 @@ tests_output/
 *.py[co]
 *.swp
 virtualenv/
+
+# Data
+app.db

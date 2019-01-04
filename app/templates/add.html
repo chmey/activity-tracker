@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.activitytype.label }}<br>
+        {{ form.activitytype }}
+        {% for error in form.activitytype.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.date.label }}<br>
+        {{ form.date }}
+        {% for error in form.date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
