@@ -11,13 +11,13 @@ RUN venv/bin/pip install gunicorn
 
 COPY app app
 COPY migrations migrations
-COPY microblog.py config.py boot.sh ./
+COPY trackr.py config.py boot.sh ./
 RUN chmod +x boot.sh
 
 ENV FLASK_APP trackr.py
 
-RUN chown -R microblog:microblog ./
-USER microblog
+RUN chown -R trackr:trackr ./
+USER trackr
 
 EXPOSE 5000
 ENTRYPOINT ["./boot.sh"]
