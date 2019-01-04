@@ -10,7 +10,12 @@ from werkzeug.urls import url_parse
 @app.route('/index')
 @login_required
 def index():
-    return render_template('index.html', activities=current_user.activities)
+    activities = current_user.activities
+    if request.args.get('hideNSFW') is not None:
+        activities = [a for a in activities if not a.activitytype.nsfw == True]
+
+    return render_template('index.html', activities=activities)
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def addactivity():
