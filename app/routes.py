@@ -6,8 +6,8 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
 
-@app.route('/')
 @app.route('/index')
+@app.route('/')
 @login_required
 def index():
     activities = current_user.user_activities_grouped_by_date(request.args.get('hidensfw') is None)
@@ -15,7 +15,7 @@ def index():
     return render_template('index.html', activities=activities, totals=totals)
 
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/activity/add', methods=['GET', 'POST'])
 def addactivity():
     form = AddActivityForm()
     form.activitytype.choices = [(type.id, type.name) for type in ActivityType.query.all()]
