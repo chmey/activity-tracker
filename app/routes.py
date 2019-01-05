@@ -19,14 +19,15 @@ def index():
 def addactivity():
     form = AddActivityForm()
     form.activitytype.choices = [(type.id, type.name) for type in ActivityType.query.all()]
-    if form.validate_on_submit():
-        a = Activity(activitytype_id = form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
-        db.session.add(a)
-        db.session.commit()
-        flash('Activity added!')
-        return redirect(url_for('index'))
-    else:
-        flash('Failed to add activity')
+    if request.method == "POST":
+        if form.validate_on_submit():
+            a = Activity(activitytype_id = form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
+            db.session.add(a)
+            db.session.commit()
+            flash('Activity added!')
+            return redirect(url_for('index'))
+        else:
+            flash('Failed to add activity.')
     return render_template('add.html', form=form)
 
 

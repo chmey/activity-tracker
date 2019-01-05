@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block app_content %}
     <h1>Hi, {{ current_user.username }}!</h1>
     <div id="chart"></div>
     <hr>
     <h2>Totals:</h2>
-    <div>
+    <div class="row">
     {% for a,c in totals.items(): %}
-        <div>
-            {{a.name}}: {{c}}
+        <div class="col-md-3 text-center">
+            <h3>{{a.name}}</h3>
+            <p>{{c}}<p>
         </div>
-    </div>
     {% endfor %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
