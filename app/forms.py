@@ -14,3 +14,8 @@ class AddActivityForm(FlaskForm):
     activitytype = SelectField('Activity:', validators=[DataRequired()], coerce=int)
     date = DateField(label='Date:')
     submit = SubmitField('Add')
+
+class AddActivityTypeForm(FlaskForm):
+    name = StringField('Name:', validators=[DataRequired()])
+    nsfw = BooleanField('NSFW')
+    submit = SubmitField('Add')

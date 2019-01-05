@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
-from app.forms import LoginForm, AddActivityForm
+from app.forms import LoginForm, AddActivityForm, AddActivityTypeForm
 from app.models import User, Activity, ActivityType
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
@@ -28,7 +28,21 @@ def addactivity():
             return redirect(url_for('index'))
         else:
             flash('Failed to add activity.')
-    return render_template('add.html', form=form)
+    return render_template('add.html', form=form, what="Activity")
+
+@app.route('/activitytype/add', methods=['GET', 'POST'])
+def addactivitytype():
+    form = AddActivityTypeForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            a_t = ActivityType(name = form.name.data, nsfw = form.nsfw.data is not None)
+            db.session.add(a_t)
+            db.session.commit()
+            flash('Activity Type added!')
+            return redirect(url_for('index'))
+        else:
+            flash('Failed to add activity type.')
+    return render_template('add.html', form=form, what="Activity Type")
 
 
 @app.route('/login', methods=['GET', 'POST'])

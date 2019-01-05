@@ -7,10 +7,12 @@
     <h2>Totals:</h2>
     <div class="row">
     {% for a,c in totals.items(): %}
+        {% if c != 0 %}
         <div class="col-md-3 text-center">
             <h3>{{a.name}}</h3>
-            <p>{{c}}<p>
+            <p class="lead">{{c}}<p>
         </div>
+        {% endif %}
     {% endfor %}
     </div>
 {% endblock %}
