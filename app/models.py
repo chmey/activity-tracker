@@ -3,6 +3,8 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
+from collections import defaultdict
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,6 +19,31 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def latest_user_activities(self):
+        return self.activities.order_by(db.desc(Activity.timestamp)).limit(5).all()
+
+    def user_activities_grouped_by_date(self, nsfw=True):
+        activities = self.activities.order_by(db.asc(Activity.timestamp)).all()
+        grouped = defaultdict(dict)
+        for t in ActivityType.query.all():
+            if (not t.nsfw) or (nsfw):
+                dates = defaultdict(int)
+                for a in activities:
+                    if a.activitytype.id == t.id:
+                        dates[a.timestamp.date()] += 1
+                grouped[t] = dates
+        return grouped
+
+    def user_activities_totals(self, nsfw=True):
+        activities = self.activities_ordered_by_recent()
+        grouped = defaultdict(int)
+        for t in ActivityType.query.all():
+            if (not t.nsfw) or (nsfw):
+                grouped[t] = sum(a.activitytype.id == t.id for a in activities) # TODO: Can probably SQL this
+        return grouped
+
+    def activities_ordered_by_recent(self):
+        return self.activities.order_by(db.desc(Activity.timestamp)).all()
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

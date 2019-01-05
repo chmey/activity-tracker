@@ -5,16 +5,15 @@ from app.models import User, Activity, ActivityType
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
+import plotly
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    activities = current_user.activities
-    if request.args.get('hideNSFW') is not None:
-        activities = [a for a in activities if not a.activitytype.nsfw == True]
-
-    return render_template('index.html', activities=activities)
+    activities = current_user.user_activities_grouped_by_date(request.args.get('hidensfw') is None)
+    totals = current_user.user_activities_totals(request.args.get('hidensfw') is None)
+    return render_template('index.html', activities=activities, totals=totals)
 
 
 @app.route('/add', methods=['GET', 'POST'])

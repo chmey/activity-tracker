@@ -2,7 +2,47 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
-        {% for activity in activities %}
-            <div><p>{{ activity.user.username }} did <b>{{ activity.activitytype.name }}</b> on {{ activity.timestamp }} </p></div>
+    <div id="chart"></div>
+    <hr>
+    <h2>Totals:</h2>
+    <div>
+    {% for a,c in totals.items(): %}
+        <div>
+            {{a.name}}: {{c}}
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript">
+        var data = [
+        {% for a_t, dates in activities.items(): %}
+        {
+
+            x: [ {% for d,c in dates.items() %}'{{d}}',{% endfor %} ],
+            y: [ {% for d,c in dates.items() %}'{{c}}',{% endfor %} ],
+            name: '{{a_t.name}}',
+            type: 'bar'
+
+        },
         {% endfor %}
+        ];
+        var layout = {
+          xaxis: {
+            type: 'date',
+            title: 'Day',
+            tickformat : "%a <br> %d %b",
+            dtick: '1D'
+          },
+          yaxis: {
+            title: 'Amount',
+            rangemode: 'tozero',
+
+          },
+          title:'Activity'
+        };
+        Plotly.newPlot('chart', data, layout);
+    </script>
 {% endblock %}
