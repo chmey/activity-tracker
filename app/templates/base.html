@@ -2,10 +2,11 @@
 <html>
     <head>
       {% if title %}
-      <title>{{ title }} - trackr</title>
+        <title>{{ title }} - trackr</title>
       {% else %}
-      <title>Welcome to trackr</title>
+        <title>Welcome to trackr</title>
       {% endif %}
+      {% block stylesheets %}{% endblock %}
     </head>
     <body>
         <div>
@@ -29,5 +30,6 @@
         {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
+        {% block scripts %}{% endblock %}
     </body>
 </html>
