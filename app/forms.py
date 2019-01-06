@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from datetime import datetime
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FileField
+from wtforms.fields.html5 import DateField, EmailField
+from wtforms.validators import DataRequired, Email, EqualTo
+from app.models import User
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -19,3 +20,24 @@ class AddActivityTypeForm(FlaskForm):
     name = StringField('Name:', validators=[DataRequired()])
     nsfw = BooleanField('NSFW')
     submit = SubmitField('Add')
+
+class ImportActivityForm(FlaskForm):
+    file = FileField('', validators=[DataRequired()]) # TODO: Validate File
+    submit = SubmitField('Import')
+
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = EmailField('Email address', validators=[Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different email address.')

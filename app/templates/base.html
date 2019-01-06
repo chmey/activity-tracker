@@ -24,6 +24,7 @@
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     {% else %}
                     <li><a href="{{ url_for('exportactivity') }}">Export</a></li>
+                    <li><a href="{{ url_for('importactivity') }}">Import</a></li>
                     <li><a href="{{ url_for('addactivity') }}">Add Activity</a></li>
                     <li><a href="{{ url_for('addactivitytype') }}">Add Activity Type</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
@@ -43,6 +44,6 @@
         {% endif %}
         {% endwith %}
         {% block app_content %}{% endblock %}
-        {% block scripts %}{% endblock %}
+        {# {% block scripts %}{% endblock %} #}
     </div>
 {% endblock %}
