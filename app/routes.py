@@ -1,9 +1,11 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, make_response
 from app import app, db
 from app.forms import LoginForm, AddActivityForm, AddActivityTypeForm
 from app.models import User, Activity, ActivityType
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
+from io import StringIO
+import csv
 
 
 @app.route('/index')
@@ -44,6 +46,18 @@ def addactivitytype():
             flash('Failed to add activity type.')
     return render_template('add.html', form=form, what="Activity Type")
 
+@app.route('/activity/export')
+def exportactivity():
+    activities = current_user.activities_ordered_by_first()
+    si = StringIO()
+    cw = csv.DictWriter(si, fieldnames=['activity','date'])
+    cw.writeheader()
+    for a in activities:
+        cw.writerow({'activity': a.activitytype.name,'date':a.timestamp.date()})
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -23,6 +23,7 @@
                     {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     {% else %}
+                    <li><a href="{{ url_for('exportactivity') }}">Export</a></li>
                     <li><a href="{{ url_for('addactivity') }}">Add Activity</a></li>
                     <li><a href="{{ url_for('addactivitytype') }}">Add Activity Type</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>

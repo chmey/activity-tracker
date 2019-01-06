@@ -45,6 +45,9 @@ class User(UserMixin, db.Model):
     def activities_ordered_by_recent(self):
         return self.activities.order_by(db.desc(Activity.timestamp)).all()
 
+    def activities_ordered_by_first(self):
+        return self.activities.order_by(db.asc(Activity.timestamp)).all()
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
