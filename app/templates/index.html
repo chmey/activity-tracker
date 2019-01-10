@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+    <div class="row"><h1>Hi, {{ current_user.username }}!</h1></div>
     <div id="chart"></div>
     <hr>
-    <h2>Totals:</h2>
+    {% if activities.items() %}
+    <div class="row"><h2>Totals:</h2></div>
     <div class="row">
     {% for a,c in totals.items(): %}
         {% if c != 0 %}
@@ -15,9 +16,16 @@
         {% endif %}
     {% endfor %}
     </div>
+    {% else %}
+    <div class="row">
+        <h2>It's so empty here!</h2>
+            <p> Looks like you haven't added any activities yet! Get started now by <a href="{{url_for('addactivity')}}">adding your first</a>.
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block app_scripts %}
+    {% if activities.items() %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript">
         var data = [
@@ -48,4 +56,5 @@
         };
         Plotly.newPlot('chart', data, layout);
     </script>
+    {% endif %}}
 {% endblock %}
