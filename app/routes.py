@@ -22,7 +22,7 @@ def index():
 @login_required
 def addactivity():
     form = AddActivityForm()
-    form.activitytype.choices = [(type.id, type.name) for type in ActivityType.query.all()]
+    form.activitytype.choices = [(type.id, type.name) for type in current_user.activitytypes]
     if request.method == "POST":
         if form.validate_on_submit():
             a = Activity(activitytype_id = form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
@@ -40,7 +40,7 @@ def addactivitytype():
     form = AddActivityTypeForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            a_t = ActivityType(name = form.name.data, nsfw = form.nsfw.data is not None)
+            a_t = ActivityType(name=form.name.data, nsfw=form.nsfw.data is not None, user=current_user)
             db.session.add(a_t)
             db.session.commit()
             flash('Activity Type added!')
@@ -73,14 +73,17 @@ def importactivity():
             csv_dicts = [{k: v for k, v in row.items()} for row in csv.DictReader(fstring.splitlines(), skipinitialspace=True)]
             _imported = 0;
             for r in csv_dicts:
-                a_t = ActivityType.query.filter(ActivityType.name == r['activity']).first()
-                if a_t is not None:
-                    a = Activity(activitytype_id = a_t.id, user_id=current_user.id, timestamp=datetime.strptime(r['date'],"%Y-%m-%d"))
-                    db.session.add(a)
+                a_t = current_user.activitytypes.filter(ActivityType.name == r['activity']).first()
+                if a_t is None:
+                    # TODO: Imports ActivityType as non NSFW make user choose
+                    a_t = ActivityType(name=r['activity'],user_id=current_user.id)
+                    db.session.add(a_t)
                     db.session.commit()
-                    _imported += 1;
-                else:
-                    flash('Activity Type {} does not exists. Not importing.'.format(r['activity']))
+                a = Activity(activitytype_id = a_t.id, user_id=current_user.id, timestamp=datetime.strptime(r['date'],"%Y-%m-%d"))
+                db.session.add(a)
+                _imported += 1;
+            db.session.commit()
+
             flash('Imported {} activities.'.format(_imported))
         else:
             flash('Failed to add activity type.')
