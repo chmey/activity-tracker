@@ -59,10 +59,9 @@ class User(UserMixin, db.Model):
             return {'x': None, 'y': None, 'z': None}
 
         # https://stackoverflow.com/questions/993358/creating-a-range-of-dates-in-python
-        date_range = [(all_activities[0].timestamp + timedelta(days=x)).date() for x in range(0, (all_activities[-1].timestamp-all_activities[0].timestamp).days)]
+        date_range = [(all_activities[0].timestamp + timedelta(days=x)).date() for x in range(0, (all_activities[-1].timestamp-all_activities[0].timestamp).days+1)]
 
         z = []
-        print(grouped_activities)
         for at in a_types:
             row = []
             for date in date_range:
@@ -72,7 +71,6 @@ class User(UserMixin, db.Model):
                     row.append('0')
             z.append(row)
 
-        print(z)
         return {'x': date_range, 'y': [at.name for at in a_types], 'z': z}
 
     def __repr__(self):
