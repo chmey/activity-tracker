@@ -13,9 +13,9 @@ from datetime import datetime
 @app.route('/')
 @login_required
 def index():
-    activities = current_user.user_activities_grouped_by_date(request.args.get('hidensfw') is None)
+    plot_data = current_user.get_plot_data()
     totals = current_user.user_activities_totals(request.args.get('hidensfw') is None)
-    return render_template('index.html', activities=activities, totals=totals)
+    return render_template('index.html', plot_data=plot_data, totals=totals)
 
 
 @app.route('/activity/add', methods=['GET', 'POST'])

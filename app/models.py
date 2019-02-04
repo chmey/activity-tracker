@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -48,6 +48,32 @@ class User(UserMixin, db.Model):
 
     def activities_ordered_by_first(self):
         return self.activities.order_by(db.asc(Activity.timestamp)).all()
+
+    def get_plot_data(self):
+        a_types = [at for at in self.activitytypes.all()]
+        all_activities = self.activities_ordered_by_first() # TODO CAN BE OPTIMIZED GROUPED BY DATE ALREADY TAKES IT SORTED
+
+        grouped_activities = self.user_activities_grouped_by_date()
+
+        if not all_activities:
+            return {'x': None, 'y': None, 'z': None}
+
+        # https://stackoverflow.com/questions/993358/creating-a-range-of-dates-in-python
+        date_range = [(all_activities[0].timestamp + timedelta(days=x)).date() for x in range(0, (all_activities[-1].timestamp-all_activities[0].timestamp).days)]
+
+        z = []
+        print(grouped_activities)
+        for at in a_types:
+            row = []
+            for date in date_range:
+                if grouped_activities[at][date] is not None:
+                    row.append(grouped_activities[at][date])
+                else:
+                    row.append('0')
+            z.append(row)
+
+        print(z)
+        return {'x': date_range, 'y': [at.name for at in a_types], 'z': z}
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
