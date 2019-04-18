@@ -18,12 +18,14 @@ def index():
     monthnames = [datetime.date(1900, x, 1).strftime("%b") for x in range(1,13)]
     return render_template('index.html', plot_data=plot_data, totals=totals, monthnames=monthnames)
 
+
 @app.route('/activity/list/<month>', methods=['GET'])
 @login_required
 def listactivities(month):
     month_list = current_user.activities_in_month(month)
     month_str = datetime.date(1900, int(month), 1).strftime("%B")
     return render_template('list.html', activities=month_list, month=month_str)
+
 
 @app.route('/activity/edit/<activity_id>', methods=['GET', 'POST'])
 @login_required
@@ -53,7 +55,7 @@ def editactivity(activity_id):
 @login_required
 def deleteactivity(activity_id):
     activity = current_user.activities.filter(Activity.id == activity_id).first()
-    if activity == None:
+    if activity is None:
         # not authorized or non existing
         flash('Not authorized to delete activity')
     else:
@@ -70,7 +72,7 @@ def addactivity():
     form.activitytype.choices = [(type.id, type.name) for type in current_user.activitytypes]
     if request.method == "POST":
         if form.validate_on_submit():
-            a = Activity(activitytype_id = form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
+            a = Activity(activitytype_id=form.activitytype.data, user_id=current_user.id, timestamp=form.date.data)
             db.session.add(a)
             db.session.commit()
             flash('Activity added!')
@@ -78,6 +80,7 @@ def addactivity():
         else:
             flash('Failed to add activity.')
     return render_template('add.html', form=form, what="Activity")
+
 
 @app.route('/activitytype/add', methods=['GET', 'POST'])
 @login_required
@@ -94,19 +97,22 @@ def addactivitytype():
             flash('Failed to add activity type.')
     return render_template('add.html', form=form, what="Activity Type")
 
+
 @app.route('/activity/export')
 @login_required
 def exportactivity():
     activities = current_user.activities_ordered_by_first()
     si = StringIO()
-    cw = csv.DictWriter(si, fieldnames=['activity','date'])
+    cw = csv.DictWriter(si, fieldnames=['activity', 'date'])
     cw.writeheader()
     for a in activities:
-        cw.writerow({'activity': a.activitytype.name,'date':a.timestamp.date()})
+        cw.writerow({'activity': a.activitytype.name, 'date':a.timestamp.date()})
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
+
 @app.route('/activity/import', methods=['GET', 'POST'])
 @login_required
 def importactivity():
@@ -121,10 +127,10 @@ def importactivity():
                 a_t = current_user.activitytypes.filter(ActivityType.name == r['activity']).first()
                 if a_t is None:
                     # TODO: Imports ActivityType as non NSFW make user choose
-                    a_t = ActivityType(name=r['activity'],user_id=current_user.id)
+                    a_t = ActivityType(name=r['activity'], user_id=current_user.id)
                     db.session.add(a_t)
                     db.session.commit()
-                a = Activity(activitytype_id = a_t.id, user_id=current_user.id, timestamp=datetime.datetime.strptime(r['date'],"%Y-%m-%d"))
+                a = Activity(activitytype_id=a_t.id, user_id=current_user.id, timestamp=datetime.datetime.strptime(r['date'],"%Y-%m-%d"))
                 db.session.add(a)
                 _imported += 1;
             db.session.commit()
@@ -133,6 +139,7 @@ def importactivity():
         else:
             flash('Failed to add activity type.')
     return render_template('import.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -160,6 +167,7 @@ def login():
             next_page = url_for('index')
         return redirect(next_page)
     return render_template('login.html', title="Sign In", form=form)
+
 
 @login_required
 @app.route('/logout')

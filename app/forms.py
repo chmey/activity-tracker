@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
-from datetime import datetime
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FileField, ValidationError
 from wtforms.fields.html5 import DateField, EmailField
 from wtforms.validators import DataRequired, Email, EqualTo
 from app.models import User
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -11,24 +11,30 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
+
 class AddActivityForm(FlaskForm):
     activitytype = SelectField('Activity:', validators=[DataRequired()], coerce=int)
     date = DateField(label='Date:')
     submit = SubmitField('Add')
+
 
 class EditActivityForm(FlaskForm):
     activitytype = SelectField('Activity:', validators=[DataRequired()], coerce=int)
     date = DateField(label='Date:')
     submit = SubmitField('Save')
 
+
 class AddActivityTypeForm(FlaskForm):
     name = StringField('Name:', validators=[DataRequired()])
     nsfw = BooleanField('NSFW')
     submit = SubmitField('Add')
 
+
 class ImportActivityForm(FlaskForm):
-    file = FileField('', validators=[DataRequired()]) # TODO: Validate File
+    # TODO: Validate File
+    file = FileField('', validators=[DataRequired()])
     submit = SubmitField('Import')
+
 
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

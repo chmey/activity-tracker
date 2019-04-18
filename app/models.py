@@ -24,7 +24,8 @@ class User(UserMixin, db.Model):
         return self.activities.order_by(db.desc(Activity.timestamp)).limit(5).all()
 
     def activities_in_month(self, month):
-        return self.activities.filter(db.extract('year', Activity.timestamp) == datetime.now().year).filter(db.extract('month', Activity.timestamp) == month)
+        return self.activities.filter(db.extract('year', Activity.timestamp) == datetime.now().year) \
+                            .filter(db.extract('month', Activity.timestamp) == month)
 
     def user_activities_grouped_by_date(self, nsfw=True):
         activities = self.activities.order_by(db.asc(Activity.timestamp)).all()
@@ -43,7 +44,8 @@ class User(UserMixin, db.Model):
         grouped = defaultdict(int)
         for t in ActivityType.query.all():
             if (not t.nsfw) or (nsfw):
-                grouped[t] = sum(a.activitytype.id == t.id for a in activities) # TODO: Can probably SQL this
+                # TODO: Can probably SQL this
+                grouped[t] = sum(a.activitytype.id == t.id for a in activities)
         return grouped
 
     def activities_ordered_by_recent(self):
@@ -54,7 +56,8 @@ class User(UserMixin, db.Model):
 
     def get_plot_data(self):
         a_types = [at for at in self.activitytypes.all()]
-        all_activities = self.activities_ordered_by_first() # TODO CAN BE OPTIMIZED GROUPED BY DATE ALREADY TAKES IT SORTED
+        # TODO CAN BE OPTIMIZED GROUPED BY DATE ALREADY TAKES IT SORTED
+        all_activities = self.activities_ordered_by_first()
 
         grouped_activities = self.user_activities_grouped_by_date()
 
@@ -79,9 +82,11 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
 
 class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,8 +94,10 @@ class Activity(db.Model):
     activitytype_id = db.Column(db.Integer, db.ForeignKey('activity_type.id'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     activitytype = db.relationship('ActivityType', backref=db.backref('activity', lazy='dynamic'))
+
     def __repr__(self):
         return '<Activity {}>'.format(self.id)
+
 
 class ActivityType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
