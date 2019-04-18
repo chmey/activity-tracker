@@ -23,6 +23,9 @@ class User(UserMixin, db.Model):
     def latest_user_activities(self):
         return self.activities.order_by(db.desc(Activity.timestamp)).limit(5).all()
 
+    def activities_in_month(self, month):
+        return self.activities.filter(db.extract('year', Activity.timestamp) == datetime.now().year).filter(db.extract('month', Activity.timestamp) == month)
+
     def user_activities_grouped_by_date(self, nsfw=True):
         activities = self.activities.order_by(db.asc(Activity.timestamp)).all()
         grouped = defaultdict(dict)

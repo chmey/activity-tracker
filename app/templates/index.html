@@ -16,6 +16,15 @@
         {% endif %}
     {% endfor %}
     </div>
+    <hr>
+    <div class="row"><h4>Browse by month:</h4></div>
+    <div class="row">
+      {% for m in monthnames %}
+      <div class="col-md-1">
+        <a href="{{url_for('listactivities',month=loop.index)}}">{{m}}</a>
+      </div>
+      {% endfor %}
+    </div>
     {% else %}
     <div class="row">
         <h2>It's so empty here!</h2>

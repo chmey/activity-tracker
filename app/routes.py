@@ -1,12 +1,12 @@
 from flask import render_template, flash, redirect, url_for, request, make_response
 from app import app, db
-from app.forms import LoginForm, AddActivityForm, AddActivityTypeForm, ImportActivityForm, RegisterForm
+from app.forms import LoginForm, EditActivityForm, AddActivityForm, AddActivityTypeForm, ImportActivityForm, RegisterForm
 from app.models import User, Activity, ActivityType
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from io import StringIO
 import csv
-from datetime import datetime
+import datetime
 
 
 @app.route('/index')
@@ -15,7 +15,52 @@ from datetime import datetime
 def index():
     plot_data = current_user.get_plot_data()
     totals = current_user.user_activities_totals(request.args.get('hidensfw') is None)
-    return render_template('index.html', plot_data=plot_data, totals=totals)
+    monthnames = [datetime.date(1900, x, 1).strftime("%b") for x in range(1,13)]
+    return render_template('index.html', plot_data=plot_data, totals=totals, monthnames=monthnames)
+
+@app.route('/activity/list/<month>', methods=['GET'])
+@login_required
+def listactivities(month):
+    month_list = current_user.activities_in_month(month)
+    month_str = datetime.date(1900, int(month), 1).strftime("%B")
+    return render_template('list.html', activities=month_list, month=month_str)
+
+@app.route('/activity/edit/<activity_id>', methods=['GET', 'POST'])
+@login_required
+def editactivity(activity_id):
+    activity = current_user.activities.filter(Activity.id == activity_id).first()
+    if activity == None:
+        flash('Not authorized to edit activity')
+        return redirect(url_for('index'))
+    else:
+        form = EditActivityForm()
+        form.activitytype.choices = [(type.id, type.name) for type in current_user.activitytypes]
+        if request.method == 'GET':
+            form.activitytype.default = activity.activitytype.id
+            form.date.default = activity.timestamp
+            form.process()
+            return render_template('edit.html', form=form)
+        else:
+            if form.validate_on_submit():
+                activity.timestamp = form.date.data
+                activity.activitytype_id = form.activitytype.data
+                db.session.commit()
+                flash('Activity edited')
+                return redirect(url_for('index'))
+
+
+@app.route('/activity/delete/<activity_id>', methods=['GET'])
+@login_required
+def deleteactivity(activity_id):
+    activity = current_user.activities.filter(Activity.id == activity_id).first()
+    if activity == None:
+        # not authorized or non existing
+        flash('Not authorized to delete activity')
+    else:
+        db.session.delete(activity)
+        db.session.commit()
+        flash('Activity deleted')
+    return redirect(url_for('index'))
 
 
 @app.route('/activity/add', methods=['GET', 'POST'])
@@ -79,7 +124,7 @@ def importactivity():
                     a_t = ActivityType(name=r['activity'],user_id=current_user.id)
                     db.session.add(a_t)
                     db.session.commit()
-                a = Activity(activitytype_id = a_t.id, user_id=current_user.id, timestamp=datetime.strptime(r['date'],"%Y-%m-%d"))
+                a = Activity(activitytype_id = a_t.id, user_id=current_user.id, timestamp=datetime.datetime.strptime(r['date'],"%Y-%m-%d"))
                 db.session.add(a)
                 _imported += 1;
             db.session.commit()

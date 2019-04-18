@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="row">
+      <div class="col-md-12">
+      <h1>List of activities in {{ month }}</h1></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+      {% for activity in activities %}
+          <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ activity.activitytype.name }} on {{ activity.timestamp.strftime('%d.%m.%Y') }}</h3>
+        </div>
+        <div class="panel-body text-center">
+          <div class="btn-group" role="group" aria-label="...">
+            <a href="{{ url_for('editactivity',activity_id=activity.id) }}" class="btn btn-default">Edit</a>
+            <a href="{{ url_for('deleteactivity', activity_id=activity.id) }}" class="btn btn-default">Delete</a>
+          </div>
+        </div>
+        </div>
+      {% endfor %}
+    </div>
+    </div>
+{% endblock %}
+
+{% block app_scripts %}
+{% endblock %}
